@@ -4,17 +4,16 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Admin – Maison Élite</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <link rel="stylesheet" href="assets/css/admin.css"/>
+<!-- JSZip — needed for ZIP export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 
-<!-- ========== TOAST ========== -->
 <div id="toast-container"></div>
 
-<!-- ========== CONFIRM DIALOG ========== -->
+<!-- ── Confirm dialog ── -->
 <div id="confirm-overlay" class="hidden">
   <div class="confirm-box">
     <div class="confirm-icon"><i class="fa-solid fa-trash-can"></i></div>
@@ -27,14 +26,17 @@
   </div>
 </div>
 
-<!-- ========== ITEM MODAL ========== -->
+<!-- ── Item modal ── -->
 <div id="item-modal" class="modal-overlay hidden">
   <div class="modal-box">
     <div class="modal-header">
       <h2 class="modal-title" id="modal-title">Add Menu Item</h2>
-      <button class="modal-close" onclick="Admin.closeModal()"><i class="fa-solid fa-xmark"></i></button>
+      <button class="modal-close" onclick="Admin.closeModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
     </div>
 
+    <!-- Name + Price -->
     <div class="form-row">
       <div class="form-group">
         <label>Item Name *</label>
@@ -46,11 +48,13 @@
       </div>
     </div>
 
+    <!-- Description -->
     <div class="form-group">
       <label>Description</label>
       <textarea id="f-desc" class="form-input" rows="2" placeholder="Brief description of the dish…"></textarea>
     </div>
 
+    <!-- Category + Tag -->
     <div class="form-row">
       <div class="form-group">
         <label>Category *</label>
@@ -67,20 +71,32 @@
       </div>
     </div>
 
+    <!-- Image upload -->
     <div class="form-group">
-      <label>Image Path / URL</label>
-      <input
-        type="text" id="f-img" class="form-input"
-        placeholder="assets/images/my-dish.jpg  or  https://…"
-        oninput="Admin.previewImg()"
-      />
-      <div class="form-hint">
-        Place your image in <code>assets/images/</code> and enter the path here.
-        Leaving blank will auto-generate a path from the item name.
+      <label>Item Image</label>
+
+      <!-- Drop zone / file picker -->
+      <div class="img-upload-area" id="img-upload-area">
+        <input
+          type="file" id="f-img-file"
+          accept="image/*"
+          onchange="Admin.handleFileSelect(this)"
+        />
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        <p>Click to upload or drag &amp; drop</p>
+        <span>JPG, PNG, WEBP — max 5 MB</span>
       </div>
-      <img id="img-preview" class="img-preview" src="" alt="Preview"/>
+
+      <!-- Preview after upload -->
+      <div class="img-preview-box" id="img-preview-box">
+        <img id="img-preview" src="" alt="Preview"/>
+        <button class="remove-img" onclick="Admin.removeImage()" title="Remove image">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
     </div>
 
+    <!-- Toggles -->
     <div style="display:flex;gap:26px;flex-wrap:wrap;margin-top:4px">
       <div class="checkbox-wrap">
         <input type="checkbox" id="f-available" checked/>
@@ -101,9 +117,9 @@
   </div>
 </div>
 
-<!-- ========================================
+<!-- ════════════════════════════════════
      LOGIN VIEW
-======================================== -->
+═════════════════════════════════════ -->
 <div id="login-view" class="hidden">
   <div class="login-page">
     <div class="login-card">
@@ -120,16 +136,15 @@
 
       <div class="form-group">
         <label>Username</label>
-        <input type="text" id="login-user" class="form-input" placeholder="Username" autocomplete="username"/>
+        <input type="text" id="login-user" class="form-input"
+               placeholder="Username" autocomplete="username"/>
       </div>
       <div class="form-group">
         <label>Password</label>
         <div class="input-wrap">
-          <input
-            type="password" id="login-pass" class="form-input"
-            placeholder="Password" autocomplete="current-password"
-            onkeydown="if(event.key==='Enter') Admin.login()"
-          />
+          <input type="password" id="login-pass" class="form-input"
+                 placeholder="Password" autocomplete="current-password"
+                 onkeydown="if(event.key==='Enter') Admin.login()"/>
           <button class="toggle-pass" onclick="Admin.togglePass('login-pass',this)">
             <i class="fa-solid fa-eye"></i>
           </button>
@@ -139,7 +154,6 @@
       <button class="btn-login" onclick="Admin.login()">
         <i class="fa-solid fa-right-to-bracket"></i> Sign In
       </button>
-
       <a class="login-back" href="index.html">
         <i class="fa-solid fa-arrow-left"></i> Back to Menu
       </a>
@@ -147,13 +161,12 @@
   </div>
 </div>
 
-<!-- ========================================
+<!-- ════════════════════════════════════
      DASHBOARD VIEW
-======================================== -->
+═════════════════════════════════════ -->
 <div id="dashboard-view" class="hidden">
   <div class="admin-body">
 
-    <!-- Sidebar overlay (mobile) -->
     <div class="sidebar-overlay" id="sb-overlay" onclick="Admin.closeSidebar()"></div>
 
     <!-- Sidebar -->
@@ -172,6 +185,9 @@
         <button class="sb-item" onclick="Admin.navTo('items',this)">
           <i class="fa-solid fa-bowl-food"></i> Menu Items
         </button>
+        <button class="sb-item" onclick="Admin.navTo('export',this)">
+          <i class="fa-solid fa-file-zipper"></i> Export & Deploy
+        </button>
         <div class="sb-section-lbl">Account</div>
         <button class="sb-item" onclick="Admin.navTo('settings',this)">
           <i class="fa-solid fa-gear"></i> Settings
@@ -188,7 +204,7 @@
       </div>
     </nav>
 
-    <!-- Main content -->
+    <!-- Main -->
     <div class="admin-main">
 
       <!-- Topbar -->
@@ -209,16 +225,19 @@
         </div>
       </div>
 
-      <!-- ===== SECTION: Overview ===== -->
+      <!-- ── OVERVIEW ── -->
       <section class="admin-section active" id="sec-overview">
         <div class="stats-grid" id="stats-grid"></div>
         <div class="section-head">
           <div class="section-title">Recent Items</div>
+          <button class="btn-export" onclick="Admin.exportZip()">
+            <i class="fa-solid fa-file-zipper"></i> Export ZIP
+          </button>
         </div>
         <div id="overview-recent"></div>
       </section>
 
-      <!-- ===== SECTION: Menu Items ===== -->
+      <!-- ── MENU ITEMS ── -->
       <section class="admin-section" id="sec-items">
         <div class="section-head">
           <div class="section-title">Menu Items</div>
@@ -227,24 +246,109 @@
           </button>
         </div>
         <div class="admin-filters">
-          <input
-            type="search" id="admin-search"
-            class="admin-search" placeholder="Search items…"
-            oninput="Admin.renderItems()"
-          />
-          <select id="admin-cat-filter" class="admin-cat-filter" onchange="Admin.renderItems()">
+          <input type="search" id="admin-search" class="admin-search"
+                 placeholder="Search items…" oninput="Admin.renderItems()"/>
+          <select id="admin-cat-filter" class="admin-cat-filter"
+                  onchange="Admin.renderItems()">
             <option value="">All Categories</option>
           </select>
         </div>
         <div class="admin-items-list" id="admin-items-list"></div>
       </section>
 
-      <!-- ===== SECTION: Settings ===== -->
+      <!-- ── EXPORT & DEPLOY ── -->
+      <section class="admin-section" id="sec-export">
+        <div class="section-title" style="margin-bottom:24px">Export &amp; Deploy</div>
+
+        <div class="export-panel">
+          <div class="export-panel-title">
+            <i class="fa-solid fa-file-zipper"></i>
+            Deploy to GitHub Pages
+          </div>
+          <p>
+            Make your changes in the Admin panel, then export a ready-to-push ZIP.
+            Upload its contents to your GitHub repo and the public menu will
+            show the latest data <strong>instantly</strong> — it always fetches
+            a fresh copy of <code>menu.json</code> with no caching.
+          </p>
+
+          <div class="export-steps">
+            <div class="export-step">
+              <div class="step-num">1</div>
+              <div class="step-text">
+                <strong>Edit your menu here in the Admin panel</strong>
+                Add, update, or remove items. Upload images using the file picker in the item form.
+              </div>
+            </div>
+            <div class="export-step">
+              <div class="step-num">2</div>
+              <div class="step-text">
+                <strong>Click "Export ZIP" below</strong>
+                Downloads a ZIP containing the updated <code>data/menu.json</code>
+                and any newly uploaded images in <code>assets/images/</code>.
+              </div>
+            </div>
+            <div class="export-step">
+              <div class="step-num">3</div>
+              <div class="step-text">
+                <strong>Push to GitHub</strong>
+                Extract the ZIP. Copy <code>data/menu.json</code> and
+                <code>assets/images/*</code> into your repo.
+                Commit &amp; push. GitHub Pages deploys in ~30 seconds.
+              </div>
+            </div>
+            <div class="export-step">
+              <div class="step-num">4</div>
+              <div class="step-text">
+                <strong>Done — customers see changes instantly</strong>
+                The public menu always fetches a fresh <code>menu.json</code>
+                on every page load, bypassing all browser and CDN caches.
+              </div>
+            </div>
+          </div>
+
+          <div class="export-actions">
+            <button class="btn-export" onclick="Admin.exportZip()">
+              <i class="fa-solid fa-file-zipper"></i> Export ZIP
+            </button>
+            <a class="btn-secondary" href="index.html" target="_blank">
+              <i class="fa-solid fa-eye"></i> Preview Menu
+            </a>
+          </div>
+
+          <!-- Progress bar -->
+          <div class="export-progress" id="export-progress">
+            <div class="progress-bar-wrap">
+              <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="progress-label" id="progress-label">Building ZIP…</div>
+          </div>
+        </div>
+
+        <!-- What's inside the ZIP -->
+        <div class="export-panel">
+          <div class="export-panel-title">
+            <i class="fa-solid fa-folder-tree"></i>
+            What's in the ZIP?
+          </div>
+          <p style="margin-bottom:0">
+            The ZIP only contains the files that change — you don't need to
+            re-upload your HTML, CSS, or JS unless you've modified those.
+          </p>
+          <div style="margin-top:16px;background:var(--cream-mid);border-radius:10px;padding:16px 18px;font-family:monospace;font-size:.82rem;color:var(--ink-mid);line-height:2;border:1px solid var(--border-lt)">
+            📦 maison-elite-deploy-[timestamp].zip<br/>
+            &nbsp;&nbsp;📄 data/<strong>menu.json</strong> &nbsp;← updated menu data<br/>
+            &nbsp;&nbsp;🖼 assets/images/<strong>*.jpg</strong> &nbsp;← uploaded images<br/>
+            &nbsp;&nbsp;📝 DEPLOY_README.txt &nbsp;← instructions
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SETTINGS ── -->
       <section class="admin-section" id="sec-settings">
         <div class="section-title" style="margin-bottom:26px">Settings</div>
         <div class="settings-grid">
 
-          <!-- Change password -->
           <div class="settings-card">
             <div class="settings-card-title">
               <i class="fa-solid fa-key"></i> Change Password
@@ -270,7 +374,7 @@
             <div class="form-group">
               <label>Confirm New Password</label>
               <div class="input-wrap">
-                <input type="password" id="confirm-pass" class="form-input" placeholder="Repeat new password"/>
+                <input type="password" id="confirm-pass" class="form-input" placeholder="Repeat password"/>
                 <button class="toggle-pass" onclick="Admin.togglePass('confirm-pass',this)">
                   <i class="fa-solid fa-eye"></i>
                 </button>
@@ -282,23 +386,23 @@
             </button>
           </div>
 
-          <!-- App info -->
           <div class="settings-card">
             <div class="settings-card-title">
               <i class="fa-solid fa-circle-info"></i> App Info
             </div>
-            <p style="color:var(--ink-mid);font-size:.88rem;line-height:1.9">
+            <p style="color:var(--ink-mid);font-size:.88rem;line-height:2">
               <strong>App</strong> &nbsp; Maison Élite Menu System<br/>
               <strong>Version</strong> &nbsp; 2.0.0<br/>
               <strong>Storage</strong> &nbsp; localStorage + JSON<br/>
-              <strong>Images</strong> &nbsp; <code>assets/images/</code><br/>
+              <strong>Cache policy</strong> &nbsp; no-store on menu.json<br/>
               <strong>Status</strong> &nbsp; <span style="color:#22c55e">●</span> Operational
             </p>
-            <div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--border-light)">
-              <p style="font-size:.8rem;color:var(--ink-muted);line-height:1.7">
+            <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border-lt)">
+              <p style="font-size:.8rem;color:var(--ink-muted);line-height:1.8">
                 <strong>Default credentials</strong><br/>
                 Username: <code>admin</code><br/>
-                Password: <code>admin123</code>
+                Password: <code>admin123</code><br/>
+                <em>Change immediately after first login.</em>
               </p>
             </div>
           </div>

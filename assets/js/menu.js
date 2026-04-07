@@ -1,83 +1,84 @@
-/* ============================================
-   MAISON ELITE — PUBLIC MENU JS
-   assets/js/menu.js
-============================================ */
+/* ============================================================
+   MAISON ÉLITE — PUBLIC MENU  |  assets/js/menu.js
+   Always fetches menu.json fresh — no stale cache.
+============================================================ */
 
 const Menu = (() => {
 
-  /* ---------- state ---------- */
-  let data     = { categories: [], items: [] };
+  let data      = { categories: [], items: [] };
   let activeCat = 'all';
   let searchQ   = '';
 
-  /* ---------- boot ---------- */
+  /* ── Boot ── */
   async function init() {
     applyDark(localStorage.getItem('me_dark') === 'true');
-    await loadData();
+    await loadFresh();
     buildCatNav();
     renderMenu();
     bindEvents();
   }
 
-  /* ---------- data ---------- */
-  async function loadData() {
-    /* Try localStorage first (admin may have edited items) */
-    const stored = localStorage.getItem('me_items');
-    const storedCats = localStorage.getItem('me_cats');
-
-    if (stored && storedCats) {
-      data.items      = JSON.parse(stored);
-      data.categories = JSON.parse(storedCats);
-      return;
-    }
-
-    /* Fetch from JSON file */
+  /* ── Always fetch the latest JSON from the server, bypass every cache layer ── */
+  async function loadFresh() {
+    showLoading(true);
     try {
-      const res  = await fetch('data/menu.json');
-      const json = await res.json();
-      data.categories = json.categories;
-      data.items      = json.items;
-      /* seed localStorage so admin can edit */
-      localStorage.setItem('me_items', JSON.stringify(data.items));
-      localStorage.setItem('me_cats',  JSON.stringify(data.categories));
-    } catch (e) {
-      console.error('Failed to load menu.json:', e);
-      toast('Could not load menu data.', 'error');
+      /* Cache-busting timestamp forces GitHub Pages (and any CDN/proxy)
+         to return the newest committed file every single time.            */
+      const bust = `?v=${Date.now()}`;
+      const res  = await fetch(`data/menu.json${bust}`, {
+        cache: 'no-store',           /* browser: skip disk cache entirely  */
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma':        'no-cache',
+        }
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json     = await res.json();
+      data.categories = json.categories || [];
+      data.items      = json.items      || [];
+    } catch (err) {
+      console.error('menu.json load failed:', err);
+      toast('Could not load menu — please refresh.', 'error');
+    } finally {
+      showLoading(false);
     }
   }
 
-  /* ---------- dark mode ---------- */
+  /* ── Dark mode ── */
   function applyDark(on) {
     document.documentElement.setAttribute('data-theme', on ? 'dark' : 'light');
     const icon = document.getElementById('dark-icon');
-    if (icon) icon.className = on ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    if (icon) icon.className = on ? 'fa-solid fa-sun dark-icon' : 'fa-solid fa-moon dark-icon';
     localStorage.setItem('me_dark', on);
   }
-
   function toggleDark() {
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    applyDark(!isDark);
+    applyDark(document.documentElement.getAttribute('data-theme') !== 'dark');
   }
 
-  /* ---------- category nav ---------- */
+  /* ── Loading state ── */
+  function showLoading(on) {
+    let el = document.getElementById('menu-loading');
+    if (!el) return;
+    el.classList.toggle('hidden', !on);
+    const content = document.getElementById('menu-content');
+    if (content) content.style.visibility = on ? 'hidden' : 'visible';
+  }
+
+  /* ── Category nav ── */
   function buildCatNav() {
     const nav = document.getElementById('cat-nav');
     if (!nav) return;
     nav.innerHTML = '';
-
-    /* All pill */
     nav.appendChild(makePill('all', 'fa-border-all', 'All', true));
-
-    data.categories.forEach(cat => {
-      nav.appendChild(makePill(cat.id, cat.icon, cat.name, false));
-    });
+    data.categories.forEach(cat =>
+      nav.appendChild(makePill(cat.id, cat.icon, cat.name, false)));
   }
 
   function makePill(id, icon, label, active) {
     const btn = document.createElement('button');
-    btn.className = 'cat-pill' + (active ? ' active' : '');
+    btn.className   = 'cat-pill' + (active ? ' active' : '');
     btn.dataset.cat = id;
-    btn.innerHTML = `<i class="fa-solid ${icon}"></i> ${label}`;
+    btn.innerHTML   = `<i class="fa-solid ${icon}"></i> ${label}`;
     btn.addEventListener('click', () => filterCat(id));
     return btn;
   }
@@ -95,13 +96,12 @@ const Menu = (() => {
     }
   }
 
-  /* ---------- render ---------- */
+  /* ── Render ── */
   function renderMenu() {
     const content   = document.getElementById('menu-content');
     const noResults = document.getElementById('no-results');
     if (!content) return;
 
-    /* Clear previous sections */
     content.querySelectorAll('.cat-section').forEach(s => s.remove());
     noResults.classList.add('hidden');
 
@@ -109,41 +109,35 @@ const Menu = (() => {
       ? data.categories
       : data.categories.filter(c => c.id === activeCat);
 
-    let totalVisible = 0;
+    let total = 0;
 
     cats.forEach(cat => {
       let items = data.items.filter(i => i.category === cat.id);
-      if (searchQ) {
-        items = items.filter(i =>
-          i.name.toLowerCase().includes(searchQ) ||
-          i.description.toLowerCase().includes(searchQ));
-      }
+      if (searchQ) items = items.filter(i =>
+        i.name.toLowerCase().includes(searchQ) ||
+        i.description.toLowerCase().includes(searchQ));
       if (!items.length) return;
-      totalVisible += items.length;
+      total += items.length;
 
       const sec = document.createElement('section');
       sec.className = 'cat-section';
-      sec.id = 'sec-' + cat.id;
-
+      sec.id        = 'sec-' + cat.id;
       sec.innerHTML = `
         <div class="cat-header">
           <div class="cat-header-left">
             <div class="cat-icon-badge"><i class="fa-solid ${cat.icon}"></i></div>
-            <div class="cat-title-wrap">
+            <div>
               <h2 class="cat-title">${cat.name}</h2>
               <p class="cat-desc">${cat.description || ''}</p>
             </div>
           </div>
           <span class="cat-item-count">${items.length} item${items.length !== 1 ? 's' : ''}</span>
         </div>
-        <div class="items-grid">
-          ${items.map(cardHTML).join('')}
-        </div>`;
-
+        <div class="items-grid">${items.map(cardHTML).join('')}</div>`;
       content.appendChild(sec);
     });
 
-    if (totalVisible === 0) {
+    if (total === 0) {
       noResults.classList.remove('hidden');
       document.getElementById('search-term').textContent = searchQ || activeCat;
     }
@@ -153,44 +147,37 @@ const Menu = (() => {
     const badgeMap  = { Popular: 'badge-popular', New: 'badge-new', Special: 'badge-special' };
     const badgeHTML = item.tag
       ? `<span class="card-badge ${badgeMap[item.tag] || ''}">${item.tag}</span>` : '';
-
     const oosHTML = !item.available
       ? `<div class="oos-overlay"><span class="oos-label"><i class="fa-solid fa-ban"></i> Out of Stock</span></div>` : '';
 
     return `
-      <article class="menu-card ${!item.available ? 'unavailable' : ''}">
-        <div class="card-img-wrap" id="img-wrap-${item.id}">
-          <img
-            src="${item.image}"
-            alt="${item.name}"
-            loading="lazy"
-            onerror="Menu.imgFallback(${item.id})"
-          />
+      <article class="menu-card${!item.available ? ' unavailable' : ''}">
+        <div class="card-img-wrap" id="cw-${item.id}">
+          <img src="${item.image}" alt="${item.name}" loading="lazy"
+               onerror="Menu.imgFallback(${item.id})"/>
           <div class="img-fallback">
             <i class="fa-solid fa-image"></i>
             <span>No image</span>
           </div>
-          ${badgeHTML}
-          ${oosHTML}
+          ${badgeHTML}${oosHTML}
         </div>
         <div class="card-body">
           <h3 class="card-name">${item.name}</h3>
           <p class="card-desc">${item.description}</p>
           <div class="card-footer">
-            <span class="card-price">${Number(item.price).toFixed(2)}</span>
+            <span class="card-price">$${Number(item.price).toFixed(2)}</span>
           </div>
         </div>
       </article>`;
   }
 
   function imgFallback(id) {
-    const wrap = document.getElementById('img-wrap-' + id);
+    const wrap = document.getElementById('cw-' + id);
     if (wrap) wrap.classList.add('fallback-active');
   }
 
-  /* ---------- events ---------- */
+  /* ── Events ── */
   function bindEvents() {
-    /* Search */
     const searchEl = document.getElementById('menu-search');
     if (searchEl) {
       searchEl.addEventListener('input', e => {
@@ -198,28 +185,24 @@ const Menu = (() => {
         renderMenu();
       });
     }
-
-    /* Sticky header shadow */
     window.addEventListener('scroll', () => {
       const h = document.getElementById('site-header');
       if (h) h.classList.toggle('scrolled', window.scrollY > 10);
     }, { passive: true });
   }
 
-  /* ---------- toast ---------- */
+  /* ── Toast ── */
   function toast(msg, type = 'info') {
     const icons = { success: 'fa-circle-check', error: 'fa-circle-exclamation', info: 'fa-circle-info' };
     const el = document.createElement('div');
     el.className = `toast ${type}`;
-    el.innerHTML = `<i class="fa-solid ${icons[type] || icons.info}"></i><span>${msg}</span>`;
+    el.innerHTML = `<i class="fa-solid ${icons[type]}"></i><span>${msg}</span>`;
     document.getElementById('toast-container').appendChild(el);
-    setTimeout(() => {
-      el.classList.add('out');
-      setTimeout(() => el.remove(), 400);
-    }, 3500);
+    setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 400); }, 3500);
   }
 
-  return { init, toggleDark, filterCat, imgFallback, toast };
+  return { init, toggleDark, imgFallback };
+
 })();
 
 document.addEventListener('DOMContentLoaded', () => Menu.init());
