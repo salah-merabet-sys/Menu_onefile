@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="description" content="Maison Élite – Fine Dining Menu"/>
+<title>Maison Élite – Menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="assets/css/style.css"/>
+</head>
+<body>
+
+<!-- ========== TOAST ========== -->
+<div id="toast-container"></div>
+
+<!-- ========== HEADER ========== -->
+<header class="site-header" id="site-header">
+  <div class="header-inner">
+    <a class="brand" href="index.html">
+      <div class="brand-mark"><i class="fa-solid fa-utensils"></i></div>
+      <div class="brand-text">
+        <div class="brand-name">Maison Élite</div>
+        <div class="brand-sub">Fine Dining</div>
+      </div>
+    </a>
+
+    <div class="header-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input
+        type="search"
+        id="menu-search"
+        class="search-input"
+        placeholder="Search dishes…"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="header-actions">
+      <button class="icon-btn" onclick="Menu.toggleDark()" title="Toggle dark mode">
+        <i class="fa-solid fa-moon dark-icon" id="dark-icon"></i>
+      </button>
+      <a class="icon-btn" href="admin.html" title="Admin panel">
+        <i class="fa-solid fa-lock"></i>
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- ========== CATEGORY NAV ========== -->
+<nav class="cat-nav-bar" aria-label="Menu categories">
+  <div class="cat-nav-inner" id="cat-nav"></div>
+</nav>
+
+<!-- ========== HERO ========== -->
+<section class="menu-hero">
+  <div class="hero-pattern"></div>
+  <div class="hero-ornament">
+    <span class="hero-ornament-line"></span>
+    <i class="fa-solid fa-utensils"></i>
+    <span class="hero-ornament-line"></span>
+  </div>
+  <h1 class="menu-hero-title">Experience <em>True</em><br/>Gastronomy</h1>
+  <p class="menu-hero-sub">Crafted with passion — served with elegance</p>
+  <div class="hero-divider"><i class="fa-solid fa-star"></i></div>
+</section>
+
+<!-- ========== MENU CONTENT ========== -->
+<main class="menu-content" id="menu-content">
+  <!-- Category sections injected here by menu.js -->
+
+  <div id="no-results" class="no-results hidden">
+    <i class="fa-solid fa-face-frown-open"></i>
+    <h3>Nothing found</h3>
+    <p>No dishes match "<span id="search-term"></span>"</p>
+  </div>
+</main>
+
+<!-- ========== FOOTER ========== -->
+<footer class="site-footer">
+  <strong>Maison Élite</strong> &nbsp;·&nbsp; Fine Dining Experience &nbsp;·&nbsp;
+  <span id="footer-year"></span>
+</footer>
+
+<script src="assets/js/menu.js"></script>
+<script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
