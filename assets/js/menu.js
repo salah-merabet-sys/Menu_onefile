@@ -177,7 +177,7 @@ const Menu = (() => {
           <h3 class="card-name">${item.name}</h3>
           <p class="card-desc">${item.description}</p>
           <div class="card-footer">
-            <span class="card-price">$${Number(item.price).toFixed(2)}</span>
+            <span class="card-price">${Number(item.price).toFixed(2)}</span>
           </div>
         </div>
       </article>`;
