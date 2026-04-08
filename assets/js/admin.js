@@ -55,28 +55,48 @@ const Admin = (() => {
     }
   }
 
-  /* Load from localStorage if available, otherwise fetch from JSON */
+  /* Fix 1: Always fetch live menu.json first, bypassing CDN cache with timestamp.
+     Only fall back to localStorage if fetch fails (offline / file://).
+     Fix 3: After a successful fetch, persist fresh data to localStorage.        */
   async function loadData() {
-    const si = localStorage.getItem('me_items');
-    const sc = localStorage.getItem('me_cats');
-    const si2= localStorage.getItem('me_uploaded_images');
+    /* Restore uploaded image cache regardless of fetch outcome */
+    const si2 = localStorage.getItem('me_uploaded_images');
+    if (si2) {
+      try { uploadedImages = JSON.parse(si2); } catch { uploadedImages = {}; }
+    }
 
-    if (si && sc) {
-      items      = JSON.parse(si);
-      categories = JSON.parse(sc);
-      if (si2) uploadedImages = JSON.parse(si2);
+    /* Skip fetch entirely on file:// — it always fails with no server */
+    if (window.location.protocol === 'file:') {
+      loadFromLocalStorage();
       return;
     }
 
     try {
-      const bust = `?v=${Date.now()}`;
-      const res  = await fetch(`data/menu.json${bust}`, { cache: 'no-store' });
+      /* Timestamp query param forces GitHub Pages CDN to return the newest file */
+      const res  = await fetch(`data/menu.json?v=${Date.now()}`, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
+
       categories = json.categories || [];
       items      = json.items      || [];
+
+      /* Fix 3: keep localStorage in sync so offline fallback stays fresh */
       persist();
+
     } catch (e) {
-      console.error('Could not load menu.json', e);
+      console.warn('Fetch failed — falling back to localStorage:', e);
+      loadFromLocalStorage();
+    }
+  }
+
+  /* Used when offline or running from the filesystem */
+  function loadFromLocalStorage() {
+    try {
+      const si = localStorage.getItem('me_items');
+      const sc = localStorage.getItem('me_cats');
+      items      = si ? JSON.parse(si) : [];
+      categories = sc ? JSON.parse(sc) : [];
+    } catch {
       items = []; categories = [];
     }
   }
@@ -364,9 +384,12 @@ const Admin = (() => {
     if (!file.type.startsWith('image/')) { toast('Please select an image file.', 'error'); return; }
     if (file.size > 5 * 1024 * 1024)    { toast('Image must be under 5 MB.', 'error'); return; }
 
-    /* Sanitize filename: lowercase, spaces → dashes */
+    /* Fix 2: Prepend Date.now() to filename so replacing an image always
+       produces a unique path — prevents browsers from serving the old
+       cached image when the dish photo is updated.                      */
     const ext      = file.name.split('.').pop().toLowerCase();
-    const safeName = file.name.replace(/\.[^.]+$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.' + ext;
+    const baseName = file.name.replace(/\.[^.]+$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const safeName = `${Date.now()}-${baseName}.${ext}`;
     currentFileName = safeName;
 
     const reader = new FileReader();
