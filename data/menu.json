@@ -61,17 +61,6 @@
       "popular": true
     },
     {
-      "id": 1775588619694,
-      "name": "Champignons au beurre et à l’ail",
-      "category": "starters",
-      "price": 950,
-      "description": "",
-      "image": "assets/images/images.jpg",
-      "tag": "",
-      "available": true,
-      "popular": false
-    },
-    {
       "id": 1775588648341,
       "name": "Salade César au poulet",
       "category": "starters",
@@ -163,12 +152,23 @@
       "id": 1775598505145,
       "name": "h'miss",
       "category": "pasta",
-      "price": 350,
+      "price": 400,
       "description": "",
       "image": "assets/images/h-mis.jpg",
       "tag": "",
       "available": true,
       "popular": false
+    },
+    {
+      "id": 1775668343551,
+      "name": "Steak de poulet grillé et légumes",
+      "category": "mains",
+      "price": 600,
+      "description": "",
+      "image": "assets/images/1775668325655-45257.jpg",
+      "tag": "Popular",
+      "available": true,
+      "popular": true
     }
   ]
 }
