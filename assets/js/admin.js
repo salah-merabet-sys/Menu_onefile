@@ -86,6 +86,18 @@ const Admin = (() => {
   function persist() {
     localStorage.setItem('me_items', JSON.stringify(items));
     localStorage.setItem('me_cats',  JSON.stringify(categories));
+<<<<<<< HEAD
+=======
+    /* Write unified cache key that menu.js reads */
+    try {
+      localStorage.setItem('me_menu', JSON.stringify({
+        version:    null,   /* no version until exported — menu.js will re-fetch on next load */
+        categories,
+        items
+      }));
+    } catch(e) { /* storage full — non-fatal */ }
+    /* Store uploaded images separately (can get large) */
+>>>>>>> parent of ea48ddb (Revert "page loading protocole update")
     try {
       localStorage.setItem('me_uploaded_images', JSON.stringify(uploadedImages));
     } catch(e) {
@@ -484,6 +496,7 @@ const Admin = (() => {
 
     progressBar.style.width = '15%';
     const exportData = {
+      version:    `1.${Date.now()}`,   /* bump version on every export so public menu re-renders */
       categories,
       items: items.map(i => ({
         id:          i.id,

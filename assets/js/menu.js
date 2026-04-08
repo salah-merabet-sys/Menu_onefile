@@ -1,17 +1,44 @@
 /* ============================================================
+<<<<<<< HEAD
    MAISON ÉLITE — PUBLIC MENU  |  assets/js/menu.js (Patched)
+=======
+   MAISON ÉLITE — PUBLIC MENU  |  assets/js/menu.js
+
+   Loading strategy:
+   1. Read localStorage immediately — render at once, no spinner.
+   2. If no cache exists — show spinner, wait for fetch.
+   3. Fetch menu.json with cache: "no-store" (no timestamp needed).
+   4. Compare version field — only re-render if version changed.
+   5. On fetch failure — keep whatever is already rendered.
+   6. Minimal hardcoded fallback if both cache and fetch fail.
+>>>>>>> parent of ea48ddb (Revert "page loading protocole update")
 ============================================================ */
 
 const Menu = (() => {
 
-  let data      = { categories: [], items: [] };
-  let activeCat = 'all';
-  let searchQ   = '';
+  let data        = { categories: [], items: [] };
+  let activeCat   = 'all';
+  let searchQ     = '';
+  let liveVersion = null; /* version string currently rendered */
+
+  /* ── Minimal fallback shown when everything else fails ── */
+  const FALLBACK = {
+    version: 'fallback',
+    categories: [
+      { id: 'mains', name: 'Main Courses', icon: 'fa-fire-flame-curved', description: 'Our kitchen favorites' }
+    ],
+    items: [
+      { id: 0, name: 'Menu Unavailable', category: 'mains', price: 0,
+        description: 'Please check back shortly or ask a member of staff.',
+        image: '', tag: '', available: true, popular: false }
+    ]
+  };
 
   /* ── Boot ── */
   async function init() {
     applyDark(localStorage.getItem('me_dark') === 'true');
     await loadData();
+<<<<<<< HEAD
     buildCatNav();
     renderMenu();
     bindEvents();
@@ -56,6 +83,95 @@ const Menu = (() => {
       if (loadingEl) loadingEl.style.display = 'none';
       const content = document.getElementById('menu-content');
       if (content) content.style.visibility = 'visible';
+=======
+    bindEvents();
+  }
+
+  /* ── Core load logic ── */
+  async function loadData() {
+    const cached = readCache();
+
+    if (cached) {
+      /* Cache exists → render immediately, no spinner */
+      applyData(cached);
+      liveVersion = cached.version || null;
+      buildCatNav();
+      renderMenu();
+      /* Then fetch silently in the background to check for updates */
+      fetchAndUpdate();
+    } else {
+      /* No cache → show spinner, block until fetch resolves */
+      showLoading(true);
+      try {
+        const fresh = await fetchJSON();
+        applyData(fresh);
+        liveVersion = fresh.version || null;
+        persistCache(fresh);
+        buildCatNav();
+        renderMenu();
+      } catch (err) {
+        console.warn('Fetch failed, using fallback:', err);
+        applyData(FALLBACK);
+        buildCatNav();
+        renderMenu();
+      } finally {
+        showLoading(false);
+      }
+    }
+  }
+
+  /* Silent background fetch — only re-renders if version changed */
+  async function fetchAndUpdate() {
+    if (window.location.protocol === 'file:') return;
+    try {
+      const fresh = await fetchJSON();
+      const newVersion = fresh.version || null;
+      if (newVersion === liveVersion) return; /* nothing changed */
+      applyData(fresh);
+      liveVersion = newVersion;
+      persistCache(fresh);
+      buildCatNav();
+      renderMenu();
+    } catch (err) {
+      /* Already showing cached data — silently ignore */
+      console.warn('Background fetch failed, keeping cached menu:', err);
+    }
+  }
+
+  /* Raw fetch — no timestamp, cache: no-store is sufficient */
+  async function fetchJSON() {
+    const res = await fetch('data/menu.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  /* Apply a data object to the live state */
+  function applyData(source) {
+    data.categories = source.categories || [];
+    data.items      = source.items      || [];
+  }
+
+  /* localStorage helpers */
+  function readCache() {
+    try {
+      const raw = localStorage.getItem('me_menu');
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  }
+
+  function persistCache(json) {
+    try {
+      localStorage.setItem('me_menu', JSON.stringify({
+        version:    json.version    || null,
+        categories: json.categories || [],
+        items:      json.items      || []
+      }));
+      /* Keep legacy keys so admin.js still works */
+      localStorage.setItem('me_cats',  JSON.stringify(json.categories || []));
+      localStorage.setItem('me_items', JSON.stringify(json.items      || []));
+    } catch (e) {
+      console.warn('localStorage write failed:', e);
+>>>>>>> parent of ea48ddb (Revert "page loading protocole update")
     }
   }
 
