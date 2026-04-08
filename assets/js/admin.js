@@ -1,6 +1,14 @@
 /* ============================================================
-   MAISON ÉLITE — ADMIN  |  assets/js/admin.js (Patched)
+   MAISON ÉLITE — ADMIN  |  assets/js/admin.js
+
+   Flow:
+   1. Edit items + upload images in the browser
+   2. Click "Export ZIP" → downloads a ready-to-deploy ZIP
+   3. Push the ZIP contents to GitHub → public menu sees changes
+      instantly because menu.js always fetches fresh JSON.
 ============================================================ */
+
+/* ── JSZip loaded from CDN in admin.html ── */
 
 const Admin = (() => {
 
@@ -9,6 +17,9 @@ const Admin = (() => {
   let categories = [];
   let editId     = null;
   let confirmCb  = null;
+
+  /* Images stored as { filename: dataURL } while in the session.
+     These get packed into the ZIP on export.                      */
   let uploadedImages = {};
 
   /* ── SHA-256 ── */
@@ -44,51 +55,35 @@ const Admin = (() => {
     }
   }
 
-  /* FIX 1: LOAD DATA OVERHAUL
-     Always attempt to fetch from server first to prevent overwriting new changes 
-     made from other devices. Fall back to localStorage only if offline.
-  */
+  /* Load from localStorage if available, otherwise fetch from JSON */
   async function loadData() {
+    const si = localStorage.getItem('me_items');
+    const sc = localStorage.getItem('me_cats');
+    const si2= localStorage.getItem('me_uploaded_images');
+
+    if (si && sc) {
+      items      = JSON.parse(si);
+      categories = JSON.parse(sc);
+      if (si2) uploadedImages = JSON.parse(si2);
+      return;
+    }
+
     try {
-      // Always try to fetch fresh truth from GitHub first
       const bust = `?v=${Date.now()}`;
       const res  = await fetch(`data/menu.json${bust}`, { cache: 'no-store' });
-      
-      if (!res.ok) throw new Error('Network error or file missing');
-      
       const json = await res.json();
       categories = json.categories || [];
       items      = json.items      || [];
-      
-      // Load current session's uploaded images that haven't been exported yet
-      const si2 = localStorage.getItem('me_uploaded_images');
-      if (si2) uploadedImages = JSON.parse(si2);
-      
-      persist(); // Sync local storage with the fresh truth
-      console.log('Successfully synced with live menu.json');
+      persist();
     } catch (e) {
-      console.warn('Could not fetch live menu.json, falling back to local storage', e);
-      // Fallback to local storage if offline or running locally
-      const si = localStorage.getItem('me_items');
-      const sc = localStorage.getItem('me_cats');
-      const si2= localStorage.getItem('me_uploaded_images');
-
-      if (si && sc) {
-        items      = JSON.parse(si);
-        categories = JSON.parse(sc);
-        if (si2) uploadedImages = JSON.parse(si2);
-      } else {
-        items = []; categories = [];
-      }
+      console.error('Could not load menu.json', e);
+      items = []; categories = [];
     }
   }
 
   function persist() {
     localStorage.setItem('me_items', JSON.stringify(items));
     localStorage.setItem('me_cats',  JSON.stringify(categories));
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
     /* Write unified cache key that menu.js reads */
     try {
       localStorage.setItem('me_menu', JSON.stringify({
@@ -97,14 +92,12 @@ const Admin = (() => {
         items
       }));
     } catch(e) { /* storage full — non-fatal */ }
-=======
->>>>>>> parent of 37f70e5 (page loading protocole update)
     /* Store uploaded images separately (can get large) */
->>>>>>> parent of ea48ddb (Revert "page loading protocole update")
     try {
       localStorage.setItem('me_uploaded_images', JSON.stringify(uploadedImages));
     } catch(e) {
-      console.warn('localStorage full — images not cached between sessions.');
+      /* If localStorage is full, warn but continue */
+      console.warn('localStorage full — uploaded images not cached between sessions.');
     }
   }
 
@@ -252,6 +245,7 @@ const Admin = (() => {
     const tagMap  = { Popular:'tag-popular', New:'tag-new', Special:'tag-special' };
     const tagHTML = item.tag ? `<span class="tag-pill ${tagMap[item.tag]||''}">${item.tag}</span>` : '';
 
+    /* Resolve display image: uploaded dataURL > file path */
     const filename = item.image ? item.image.split('/').pop() : '';
     const dispImg  = uploadedImages[filename] || item.image || '';
 
@@ -297,7 +291,7 @@ const Admin = (() => {
   }
 
   /* ── Modal ── */
-  let currentFileDataURL = null; 
+  let currentFileDataURL = null;  /* holds the newly picked image during this modal session */
   let currentFileName    = null;
 
   function openModal(id) {
@@ -322,6 +316,7 @@ const Admin = (() => {
       document.getElementById('f-available').checked = item.available;
       document.getElementById('f-popular').checked   = item.popular;
 
+      /* Show existing image */
       if (dataURL || item.image) {
         setPreviewImage(dataURL || item.image, filename);
       }
@@ -342,11 +337,13 @@ const Admin = (() => {
     currentFileName    = null;
   }
 
+  /* ── Image upload handling ── */
   function resetImageUI() {
     const preview = document.getElementById('img-preview-box');
     const area    = document.getElementById('img-upload-area');
     if (preview) preview.classList.remove('show');
     if (area)    area.style.display = '';
+    /* Clear file input */
     const fi = document.getElementById('f-img-file');
     if (fi) fi.value = '';
   }
@@ -361,26 +358,21 @@ const Admin = (() => {
     if (filename) currentFileName = filename;
   }
 
-  /* FIX 2: CACHE BUSTING IMAGES
-     Prepend a timestamp to the safeName to ensure that even if the 
-     user uploads a photo with the same name, it generates a new URL.
-  */
   function handleFileSelect(input) {
     const file = input.files[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) { toast('Please select an image file.', 'error'); return; }
     if (file.size > 5 * 1024 * 1024)    { toast('Image must be under 5 MB.', 'error'); return; }
 
+    /* Sanitize filename: lowercase, spaces → dashes */
     const ext      = file.name.split('.').pop().toLowerCase();
-    const cleanName = file.name.replace(/\.[^.]+$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    
-    // Add timestamp to break browser cache on update
-    currentFileName = `${Date.now()}-${cleanName}.${ext}`;
+    const safeName = file.name.replace(/\.[^.]+$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.' + ext;
+    currentFileName = safeName;
 
     const reader = new FileReader();
     reader.onload = e => {
       currentFileDataURL = e.target.result;
-      setPreviewImage(currentFileDataURL, currentFileName);
+      setPreviewImage(currentFileDataURL, safeName);
     };
     reader.readAsDataURL(file);
   }
@@ -391,6 +383,7 @@ const Admin = (() => {
     resetImageUI();
   }
 
+  /* Drag-and-drop */
   function setupDragDrop() {
     const area = document.getElementById('img-upload-area');
     if (!area) return;
@@ -408,6 +401,7 @@ const Admin = (() => {
     });
   }
 
+  /* ── Save item ── */
   function saveItem() {
     const name  = document.getElementById('f-name').value.trim();
     const price = parseFloat(document.getElementById('f-price').value);
@@ -417,6 +411,7 @@ const Admin = (() => {
     if (!price || price<0) { toast('Valid price required.', 'error'); return; }
     if (!cat)              { toast('Select a category.', 'error'); return; }
 
+    /* Determine image path */
     let imagePath = '';
     if (editId) {
       const existing = items.find(i => i.id === editId);
@@ -424,9 +419,11 @@ const Admin = (() => {
     }
 
     if (currentFileName && currentFileDataURL) {
+      /* New file uploaded this session */
       imagePath = `assets/images/${currentFileName}`;
       uploadedImages[currentFileName] = currentFileDataURL;
     } else if (!imagePath) {
+      /* Auto-generate path from name */
       const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       imagePath  = `assets/images/${slug}.jpg`;
     }
@@ -458,12 +455,14 @@ const Admin = (() => {
     renderItems();
   }
 
+  /* ── Delete ── */
   function deleteItem(id) {
     const item = items.find(i => i.id === id);
     document.querySelector('.confirm-box p').textContent =
       `"${item?.name || 'This item'}" will be permanently removed from the menu.`;
     document.getElementById('confirm-overlay').classList.remove('hidden');
     confirmCb = () => {
+      /* Also remove cached image if it's only used by this item */
       const filename = item?.image?.split('/').pop();
       if (filename && !items.some((i, idx) => i.id !== id && i.image?.includes(filename))) {
         delete uploadedImages[filename];
@@ -481,6 +480,7 @@ const Admin = (() => {
   }
   function execConfirm() { if (confirmCb) confirmCb(); closeConfirm(); }
 
+  /* ── Export ZIP ── */
   async function exportZip() {
     if (typeof JSZip === 'undefined') {
       toast('JSZip not loaded — check your internet connection.', 'error');
@@ -497,8 +497,10 @@ const Admin = (() => {
 
     const zip = new JSZip();
 
+    /* 1. menu.json — clean version (no internal state) */
     progressBar.style.width = '15%';
     const exportData = {
+      version:    `1.${Date.now()}`,   /* bump version on every export so public menu re-renders */
       categories,
       items: items.map(i => ({
         id:          i.id,
@@ -514,35 +516,47 @@ const Admin = (() => {
     };
     zip.file('data/menu.json', JSON.stringify(exportData, null, 2));
 
+    /* 2. Uploaded images → assets/images/ */
     progressBar.style.width = '30%';
     progressLbl.textContent  = 'Packing images…';
 
     const imageEntries = Object.entries(uploadedImages);
     for (let i = 0; i < imageEntries.length; i++) {
       const [filename, dataURL] = imageEntries[i];
+      /* dataURL → base64 data */
       const base64 = dataURL.split(',')[1];
+      const mime   = dataURL.match(/data:([^;]+)/)?.[1] || 'image/jpeg';
       zip.file(`assets/images/${filename}`, base64, { base64: true });
       progressBar.style.width = `${30 + Math.round((i / imageEntries.length) * 40)}%`;
     }
 
+    /* 3. README with deploy instructions */
     progressBar.style.width = '75%';
     progressLbl.textContent  = 'Finalizing…';
 
     zip.file('DEPLOY_README.txt', [
-      'MAISON ÉLITE — DEPLOYMENT PACKAGE (PATCHED)',
-      '============================================',
+      'MAISON ÉLITE — DEPLOYMENT PACKAGE',
+      '===================================',
+      '',
+      'This ZIP contains:',
+      '  data/menu.json          ← Updated menu data',
+      '  assets/images/*.jpg     ← Uploaded images (if any)',
       '',
       'HOW TO DEPLOY:',
       '  1. Extract this ZIP',
       '  2. Copy data/menu.json   → your repo /data/menu.json',
-      '  3. Copy assets/images/* → your repo /assets/images/',
+      '  3. Copy assets/images/*  → your repo /assets/images/',
       '  4. Commit & push to GitHub',
+      '  5. Public menu shows changes instantly (no cache)',
       '',
       `Exported: ${new Date().toLocaleString()}`,
+      `Items: ${items.length}`,
+      `Images packed: ${imageEntries.length}`,
     ].join('\n'));
 
     progressBar.style.width = '90%';
 
+    /* 4. Generate and download */
     progressLbl.textContent = 'Generating download…';
     const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
 
@@ -563,6 +577,7 @@ const Admin = (() => {
     }, 3000);
   }
 
+  /* ── Toast ── */
   function toast(msg, type = 'info') {
     const icons = { success:'fa-circle-check', error:'fa-circle-exclamation', info:'fa-circle-info' };
     const el = document.createElement('div');
@@ -572,6 +587,7 @@ const Admin = (() => {
     setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 400); }, 3800);
   }
 
+  /* ── Expose to HTML ── */
   return {
     init, toggleDark, login, logout, changePassword, togglePass,
     navTo, openSidebar, closeSidebar,
