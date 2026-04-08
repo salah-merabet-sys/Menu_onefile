@@ -87,6 +87,7 @@ const Admin = (() => {
     localStorage.setItem('me_items', JSON.stringify(items));
     localStorage.setItem('me_cats',  JSON.stringify(categories));
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     /* Write unified cache key that menu.js reads */
     try {
@@ -96,6 +97,8 @@ const Admin = (() => {
         items
       }));
     } catch(e) { /* storage full — non-fatal */ }
+=======
+>>>>>>> parent of 37f70e5 (page loading protocole update)
     /* Store uploaded images separately (can get large) */
 >>>>>>> parent of ea48ddb (Revert "page loading protocole update")
     try {
@@ -496,7 +499,6 @@ const Admin = (() => {
 
     progressBar.style.width = '15%';
     const exportData = {
-      version:    `1.${Date.now()}`,   /* bump version on every export so public menu re-renders */
       categories,
       items: items.map(i => ({
         id:          i.id,

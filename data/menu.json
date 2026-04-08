@@ -1,0 +1,174 @@
+{
+  "categories": [
+    {
+      "id": "starters",
+      "name": "Starters",
+      "icon": "fa-leaf",
+      "description": "Light beginnings to awaken the palate"
+    },
+    {
+      "id": "mains",
+      "name": "Main Courses",
+      "icon": "fa-fire-flame-curved",
+      "description": "The heart of our kitchen"
+    },
+    {
+      "id": "pasta",
+      "name": "Pasta & Risotto",
+      "icon": "fa-bowl-rice",
+      "description": "Handmade pastas and slow-cooked risottos"
+    },
+    {
+      "id": "grill",
+      "name": "From the Grill",
+      "icon": "fa-drumstick-bite",
+      "description": "Charcoal-fired and wood-smoked specialties"
+    },
+    {
+      "id": "drinks",
+      "name": "Drinks",
+      "icon": "fa-wine-glass",
+      "description": "Curated wines, cocktails and soft options"
+    },
+    {
+      "id": "desserts",
+      "name": "Desserts",
+      "icon": "fa-cake-candles",
+      "description": "Sweet finales crafted in-house daily"
+    }
+  ],
+  "items": [
+    {
+      "id": 14,
+      "name": "Côte de Boeuf",
+      "category": "grill",
+      "price": 4300,
+      "description": "800g dry-aged prime rib on the bone, chimichurri, béarnaise and hand-cut frites. For two.",
+      "image": "assets/images/c-telettes-d-agneau-grill-es.jpg",
+      "tag": "Special",
+      "available": true,
+      "popular": false
+    },
+    {
+      "id": 1775588557505,
+      "name": "Soupe à l’oignon gratinée",
+      "category": "starters",
+      "price": 800,
+      "description": "",
+      "image": "assets/images/soupe-l-oignon-gratin-e.jpg",
+      "tag": "",
+      "available": true,
+      "popular": true
+    },
+    {
+      "id": 1775588619694,
+      "name": "Champignons au beurre et à l’ail",
+      "category": "starters",
+      "price": 950,
+      "description": "",
+      "image": "assets/images/images.jpg",
+      "tag": "",
+      "available": true,
+      "popular": false
+    },
+    {
+      "id": 1775588648341,
+      "name": "Salade César au poulet",
+      "category": "starters",
+      "price": 1000,
+      "description": "",
+      "image": "assets/images/salade-c-sar-au-poulet.jpg",
+      "tag": "",
+      "available": true,
+      "popular": false
+    },
+    {
+      "id": 1775588688388,
+      "name": "Bruschetta aux tomates et basilic",
+      "category": "mains",
+      "price": 700,
+      "description": "",
+      "image": "assets/images/download.jpg",
+      "tag": "",
+      "available": true,
+      "popular": false
+    },
+    {
+      "id": 1775588757861,
+      "name": "Steak Ribeye 300g",
+      "category": "grill",
+      "price": 4500,
+      "description": "",
+      "image": "assets/images/steak-ribeye-300g.jpg",
+      "tag": "",
+      "available": true,
+      "popular": true
+    },
+    {
+      "id": 1775588828781,
+      "name": "Steak T-Bone 350g",
+      "category": "mains",
+      "price": 4800,
+      "description": "",
+      "image": "assets/images/steak-t-bone.jpg",
+      "tag": "",
+      "available": true,
+      "popular": true
+    },
+    {
+      "id": 1775588864524,
+      "name": "Côtelettes d’agneau grillées (3 pièces)",
+      "category": "mains",
+      "price": 4000,
+      "description": "",
+      "image": "assets/images/c-telettes-d-agneau-grill-es.jpg",
+      "tag": "",
+      "available": true,
+      "popular": false
+    },
+    {
+      "id": 1775598352446,
+      "name": "Filet mignon 250g",
+      "category": "grill",
+      "price": 4900,
+      "description": "",
+      "image": "assets/images/filet-mignon.jpg",
+      "tag": "",
+      "available": true,
+      "popular": true
+    },
+    {
+      "id": 1775598396912,
+      "name": "Burger de bœuf avec frites",
+      "category": "mains",
+      "price": 1800,
+      "description": "",
+      "image": "assets/images/burger-de-b-uf-avec-frites.jpg",
+      "tag": "",
+      "available": true,
+      "popular": true
+    },
+    {
+      "id": 1775598471555,
+      "name": "Frites",
+      "category": "pasta",
+      "price": 450,
+      "description": "",
+      "image": "assets/images/frites.jpg",
+      "tag": "",
+      "available": true,
+      "popular": false
+    },
+    {
+      "id": 1775598505145,
+      "name": "h'miss",
+      "category": "pasta",
+      "price": 350,
+      "description": "",
+      "image": "assets/images/h-mis.jpg",
+      "tag": "",
+      "available": true,
+      "popular": false
+    }
+  ]
+}
