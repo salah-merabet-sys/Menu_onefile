@@ -297,7 +297,7 @@ const Admin = (() => {
         <div class="admin-item-info">
           <div class="admin-item-name">${item.name}</div>
           <div class="admin-item-meta">
-            <span class="admin-item-price">$${Number(item.price).toFixed(2)}</span>
+            <span class="admin-item-price">${Number(item.price).toLocaleString('fr-DZ')} DA</span>
             <span>${catName}</span>
             ${tagHTML}
             <span class="stock-badge ${item.available?'stock-in':'stock-out'}">
