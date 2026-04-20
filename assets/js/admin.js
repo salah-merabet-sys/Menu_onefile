@@ -18,6 +18,18 @@ const Admin = (() => {
   let editId     = null;
   let confirmCb  = null;
 
+  /* Branding: name, hero text, logo */
+  let branding = {
+    restaurantName: 'Maison Élite',
+    restaurantSub:  'Fine Dining',
+    heroTitle:      'Experience <em>True</em><br/>Gastronomy',
+    heroSub:        'Crafted with passion — served with elegance',
+    logoImage:      '',
+    logoImageFilename: '',
+    theme:          'gold',
+    darkMode:       false,
+  };
+
   /* Images stored as { filename: dataURL } while in the session.
      These get packed into the ZIP on export.                      */
   let uploadedImages = {};
@@ -28,20 +40,28 @@ const Admin = (() => {
     return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
   }
 
-  /* ── Dark mode ── */
-  function applyDark(on) {
-    document.documentElement.setAttribute('data-theme', on ? 'dark' : 'light');
+  /* ── Theme + dark mode ── */
+  function applyTheme(theme, dark) {
+    const html = document.documentElement;
+    html.setAttribute('data-theme', theme || 'gold');
+    html.setAttribute('data-mode',  dark  ? 'dark' : 'light');
     document.querySelectorAll('.dark-icon').forEach(i =>
-      i.className = `fa-solid ${on ? 'fa-sun' : 'fa-moon'} dark-icon`);
-    localStorage.setItem('me_dark', on);
+      i.className = `fa-solid ${dark ? 'fa-sun' : 'fa-moon'} dark-icon`);
+    localStorage.setItem('me_dark',  dark);
+    localStorage.setItem('me_theme', theme);
   }
   function toggleDark() {
-    applyDark(document.documentElement.getAttribute('data-theme') !== 'dark');
+    const dark  = document.documentElement.getAttribute('data-mode') !== 'dark';
+    const theme = document.documentElement.getAttribute('data-theme') || 'gold';
+    applyTheme(theme, dark);
+    branding.darkMode = dark;
+    persist();
   }
 
   /* ── Boot ── */
   async function init() {
-    applyDark(localStorage.getItem('me_dark') === 'true');
+    const cachedTheme = localStorage.getItem('me_theme') || 'gold';
+    applyTheme(cachedTheme, localStorage.getItem('me_dark') === 'true');
     await ensureCreds();
     await loadData();
     if (localStorage.getItem('me_session') === '1') showDashboard();
@@ -79,6 +99,10 @@ const Admin = (() => {
 
       categories = json.categories || [];
       items      = json.items      || [];
+      branding   = Object.assign(branding, json.branding || {});
+
+      /* Apply the saved theme immediately */
+      applyTheme(branding.theme || 'gold', branding.darkMode || false);
 
       /* Fix 3: keep localStorage in sync so offline fallback stays fresh */
       persist();
@@ -94,16 +118,19 @@ const Admin = (() => {
     try {
       const si = localStorage.getItem('me_items');
       const sc = localStorage.getItem('me_cats');
+      const sb = localStorage.getItem('me_branding');
       items      = si ? JSON.parse(si) : [];
       categories = sc ? JSON.parse(sc) : [];
+      if (sb) branding = Object.assign(branding, JSON.parse(sb));
     } catch {
       items = []; categories = [];
     }
   }
 
   function persist() {
-    localStorage.setItem('me_items', JSON.stringify(items));
-    localStorage.setItem('me_cats',  JSON.stringify(categories));
+    localStorage.setItem('me_items',    JSON.stringify(items));
+    localStorage.setItem('me_cats',     JSON.stringify(categories));
+    localStorage.setItem('me_branding', JSON.stringify(branding));
     /* Store uploaded images separately (can get large) */
     try {
       localStorage.setItem('me_uploaded_images', JSON.stringify(uploadedImages));
@@ -196,6 +223,7 @@ const Admin = (() => {
     document.getElementById('sec-' + section).classList.add('active');
     document.getElementById('topbar-title').textContent = el.textContent.trim();
     closeSidebar();
+    if (section === 'branding') renderBrandingPanel();
   }
   function openSidebar() {
     document.getElementById('admin-sidebar').classList.add('open');
@@ -514,7 +542,24 @@ const Admin = (() => {
 
     /* 1. menu.json — clean version (no internal state) */
     progressBar.style.width = '15%';
+
+    /* Build branding export — inline logo as data URL so the public menu
+       can display it without a separate image request. If the admin uploaded
+       a logo we store it both inline (in branding.logoImage) and as a file
+       in assets/images/ for completeness.                                    */
+    const brandingExport = {
+      restaurantName:     branding.restaurantName     || '',
+      restaurantSub:      branding.restaurantSub      || '',
+      heroTitle:          branding.heroTitle           || '',
+      heroSub:            branding.heroSub             || '',
+      logoImage:          branding.logoImage           || '',
+      logoImageFilename:  branding.logoImageFilename   || '',
+      theme:              branding.theme               || 'gold',
+      darkMode:           branding.darkMode            || false,
+    };
+
     const exportData = {
+      branding: brandingExport,
       categories,
       items: items.map(i => ({
         id:          i.id,
@@ -542,6 +587,12 @@ const Admin = (() => {
       const mime   = dataURL.match(/data:([^;]+)/)?.[1] || 'image/jpeg';
       zip.file(`assets/images/${filename}`, base64, { base64: true });
       progressBar.style.width = `${30 + Math.round((i / imageEntries.length) * 40)}%`;
+    }
+
+    /* 2b. Logo image (if uploaded) → assets/images/logo-* */
+    if (branding.logoImage && branding.logoImageFilename) {
+      const logoBase64 = branding.logoImage.split(',')[1];
+      zip.file(`assets/images/${branding.logoImageFilename}`, logoBase64, { base64: true });
     }
 
     /* 3. README with deploy instructions */
@@ -601,6 +652,123 @@ const Admin = (() => {
     setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 400); }, 3800);
   }
 
+  /* ── Branding ── */
+
+  const THEMES = [
+    { id: 'gold',    label: 'Gold',     accent: '#c09a5a', bg: '#f8f4ee' },
+    { id: 'rouge',   label: 'Rouge',    accent: '#c0373a', bg: '#fdf5f5' },
+    { id: 'foret',   label: 'Forêt',    accent: '#3a7a46', bg: '#f4f8f2' },
+    { id: 'ardoise', label: 'Ardoise',  accent: '#3a6494', bg: '#f2f5f8' },
+    { id: 'ivoire',  label: 'Ivoire',   accent: '#2c2c2c', bg: '#fafaf8' },
+    { id: 'braise',  label: 'Braise',   accent: '#c86428', bg: '#fdf6f0' },
+    { id: 'lavande', label: 'Lavande',  accent: '#7048c0', bg: '#f7f4fc' },
+    { id: 'rose',    label: 'Rosé',     accent: '#b84870', bg: '#fdf5f7' },
+    { id: 'minuit',  label: 'Minuit',   accent: '#4040a0', bg: '#f0f0f4' },
+    { id: 'terra',   label: 'Terra',    accent: '#a05030', bg: '#faf4ef' },
+  ];
+
+  function renderBrandingPanel() {
+    const nameEl  = document.getElementById('b-name');
+    const subEl   = document.getElementById('b-sub');
+    const heroTEl = document.getElementById('b-hero-title');
+    const heroSEl = document.getElementById('b-hero-sub');
+    if (nameEl)  nameEl.value  = branding.restaurantName || '';
+    if (subEl)   subEl.value   = branding.restaurantSub  || '';
+    if (heroTEl) heroTEl.value = (branding.heroTitle || '').replace(/<[^>]+>/g, '').replace(/\n/g,'');
+    if (heroSEl) heroSEl.value = branding.heroSub        || '';
+    renderLogoPreview();
+    renderThemePicker();
+  }
+
+  function renderThemePicker() {
+    const grid = document.getElementById('theme-picker-grid');
+    if (!grid) return;
+    const currentTheme = branding.theme || 'gold';
+    grid.innerHTML = THEMES.map(t => `
+      <button
+        class="theme-swatch${t.id === currentTheme ? ' selected' : ''}"
+        onclick="Admin.selectTheme('${t.id}')"
+        title="${t.label}"
+        style="--sw-accent:${t.accent};--sw-bg:${t.bg}"
+      >
+        <span class="sw-preview">
+          <span class="sw-bg"></span>
+          <span class="sw-stripe"></span>
+        </span>
+        <span class="sw-label">${t.label}</span>
+      </button>
+    `).join('');
+  }
+
+  function selectTheme(themeId) {
+    branding.theme = themeId;
+    applyTheme(themeId, branding.darkMode || false);
+    persist();
+    renderThemePicker();
+    toast(`Theme set to ${THEMES.find(t=>t.id===themeId)?.label || themeId}`, 'success');
+  }
+
+  function renderLogoPreview() {
+    const previewBox = document.getElementById('logo-preview-box');
+    const uploadArea = document.getElementById('logo-upload-area');
+    if (!previewBox || !uploadArea) return;
+    if (branding.logoImage) {
+      previewBox.style.display = 'flex';
+      uploadArea.style.display = 'none';
+      const img = document.getElementById('logo-preview-img');
+      if (img) img.src = branding.logoImage;
+    } else {
+      previewBox.style.display = 'none';
+      uploadArea.style.display = 'flex';
+    }
+  }
+
+  function handleLogoSelect(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { toast('Logo must be under 2 MB.', 'error'); return; }
+    const ext      = file.name.split('.').pop().toLowerCase();
+    const filename = `logo-${Date.now()}.${ext}`;
+    const reader   = new FileReader();
+    reader.onload  = e => {
+      branding.logoImage         = e.target.result;
+      branding.logoImageFilename = filename;
+      persist();
+      renderLogoPreview();
+      toast('Logo uploaded — save branding to apply.', 'success');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function removeLogo() {
+    branding.logoImage         = '';
+    branding.logoImageFilename = '';
+    persist();
+    renderLogoPreview();
+    toast('Logo removed.', 'info');
+  }
+
+  function saveBranding() {
+    const nameEl  = document.getElementById('b-name');
+    const subEl   = document.getElementById('b-sub');
+    const heroTEl = document.getElementById('b-hero-title');
+    const heroSEl = document.getElementById('b-hero-sub');
+
+    const rawTitle = (heroTEl?.value || '').trim();
+
+    branding.restaurantName = nameEl?.value.trim()  || 'Maison Élite';
+    branding.restaurantSub  = subEl?.value.trim()   || 'Fine Dining';
+    branding.heroSub        = heroSEl?.value.trim() || '';
+    branding.heroTitle = rawTitle.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+    persist();
+    applyTheme(branding.theme || 'gold', branding.darkMode || false);
+    toast('Branding saved — export ZIP to deploy.', 'success');
+
+    const sb = document.querySelector('.sb-brand');
+    if (sb) sb.textContent = branding.restaurantName;
+  }
+
   /* ── Expose to HTML ── */
   return {
     init, toggleDark, login, logout, changePassword, togglePass,
@@ -608,6 +776,7 @@ const Admin = (() => {
     openModal, closeModal, saveItem, removeImage, handleFileSelect,
     toggleAvail, deleteItem, closeConfirm, execConfirm,
     renderItems, exportZip, setupDragDrop,
+    handleLogoSelect, removeLogo, saveBranding, renderBrandingPanel, selectTheme,
   };
 
 })();

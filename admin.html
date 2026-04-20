@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="gold" data-mode="light">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Admin – Maison Élite</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="assets/css/themes.css"/>
 <link rel="stylesheet" href="assets/css/admin.css"/>
 <!-- JSZip — needed for ZIP export -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -185,6 +186,9 @@
         <button class="sb-item" onclick="Admin.navTo('items',this)">
           <i class="fa-solid fa-bowl-food"></i> Menu Items
         </button>
+        <button class="sb-item" onclick="Admin.navTo('branding',this)">
+          <i class="fa-solid fa-palette"></i> Branding
+        </button>
         <button class="sb-item" onclick="Admin.navTo('export',this)">
           <i class="fa-solid fa-file-zipper"></i> Export & Deploy
         </button>
@@ -254,6 +258,120 @@
           </select>
         </div>
         <div class="admin-items-list" id="admin-items-list"></div>
+      </section>
+
+      <!-- ── BRANDING ── -->
+      <section class="admin-section" id="sec-branding">
+        <div class="section-title" style="margin-bottom:24px">Branding</div>
+
+        <div class="export-panel">
+          <div class="export-panel-title">
+            <i class="fa-solid fa-store"></i>
+            Restaurant Identity
+          </div>
+          <p style="margin-bottom:20px">
+            Set your restaurant name, tagline, and hero text. These appear on the public menu's
+            header, front page, and footer. Click <strong>Save Branding</strong> then
+            <strong>Export ZIP</strong> to deploy.
+          </p>
+
+          <!-- Restaurant Name + Sub -->
+          <div class="form-row">
+            <div class="form-group">
+              <label>Restaurant Name</label>
+              <input type="text" id="b-name" class="form-input" placeholder="e.g. Maison Élite"/>
+            </div>
+            <div class="form-group">
+              <label>Subtitle / Type</label>
+              <input type="text" id="b-sub" class="form-input" placeholder="e.g. Fine Dining"/>
+            </div>
+          </div>
+
+          <!-- Hero texts -->
+          <div class="form-group">
+            <label>Hero Title <span style="font-weight:400;color:var(--ink-muted);font-size:.8rem">— wrap a word in *asterisks* for italic</span></label>
+            <input type="text" id="b-hero-title" class="form-input"
+                   placeholder="e.g. Experience *True* Gastronomy"/>
+          </div>
+          <div class="form-group">
+            <label>Hero Subtitle</label>
+            <input type="text" id="b-hero-sub" class="form-input"
+                   placeholder="e.g. Crafted with passion — served with elegance"/>
+          </div>
+
+          <button class="btn-primary" onclick="Admin.saveBranding()" style="margin-top:8px">
+            <i class="fa-solid fa-floppy-disk"></i> Save Branding
+          </button>
+        </div>
+
+        <!-- Theme picker -->
+        <div class="export-panel" style="margin-top:24px">
+          <div class="export-panel-title">
+            <i class="fa-solid fa-swatchbook"></i>
+            Colour Theme
+          </div>
+          <p style="margin-bottom:20px">
+            Choose a colour theme for the public menu. The dark mode toggle still works on top of
+            whichever theme you pick. Click a theme to preview it live — hit
+            <strong>Save Branding</strong> to persist it to the export.
+          </p>
+          <div class="theme-picker-grid" id="theme-picker-grid">
+            <!-- Populated by renderThemePicker() -->
+          </div>
+        </div>
+
+        <!-- Logo upload -->
+        <div class="export-panel" style="margin-top:24px">
+          <div class="export-panel-title">
+            <i class="fa-solid fa-palette"></i>
+            Colour Theme
+          </div>
+          <p style="margin-bottom:20px">
+            Pick a theme for your public menu. The dark mode toggle still works on top of any theme.
+            Click <strong>Save Branding</strong> then <strong>Export ZIP</strong> to deploy the change.
+          </p>
+          <div id="theme-picker-grid" class="theme-picker-grid"></div>
+
+          <div style="margin-top:20px;display:flex;align-items:center;gap:12px">
+            <label style="font-size:.85rem;font-weight:600;color:var(--ink-mid)">Default mode</label>
+            <button class="btn-secondary" onclick="Admin.toggleDark()" style="display:flex;align-items:center;gap:8px;padding:8px 16px">
+              <i class="fa-solid fa-moon dark-icon"></i>
+              Toggle Dark / Light
+            </button>
+          </div>
+        </div>
+
+        <!-- Logo upload -->
+        <div class="export-panel" style="margin-top:24px">
+          <div class="export-panel-title">
+            <i class="fa-solid fa-image"></i>
+            Restaurant Logo
+          </div>
+          <p style="margin-bottom:16px">
+            Upload a logo image (PNG, SVG, or WebP recommended, max 2 MB).
+            It replaces the fork-and-knife icon in the header.
+            The logo is embedded directly in <code>menu.json</code> as a data URL —
+            no separate image file needed on GitHub.
+          </p>
+
+          <!-- Drop zone -->
+          <div class="img-upload-area" id="logo-upload-area" style="max-width:360px">
+            <input type="file" id="logo-file-input" accept="image/*"
+                   onchange="Admin.handleLogoSelect(this)"/>
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <p>Click to upload logo</p>
+            <span>PNG, SVG, WebP — max 2 MB</span>
+          </div>
+
+          <!-- Preview -->
+          <div class="img-preview-box" id="logo-preview-box" style="display:none;max-width:160px">
+            <img id="logo-preview-img" src="" alt="Logo preview"
+                 style="width:100%;height:100%;object-fit:contain;border-radius:8px;background:#fff;padding:6px"/>
+            <button class="remove-img" onclick="Admin.removeLogo()" title="Remove logo">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
       </section>
 
       <!-- ── EXPORT & DEPLOY ── -->

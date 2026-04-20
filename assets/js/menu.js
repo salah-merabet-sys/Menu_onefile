@@ -5,14 +5,18 @@
 
 const Menu = (() => {
 
-  let data      = { categories: [], items: [] };
+  let data      = { branding: {}, categories: [], items: [] };
   let activeCat = 'all';
   let searchQ   = '';
 
   /* ── Boot ── */
   async function init() {
-    applyDark(localStorage.getItem('me_dark') === 'true');
+    /* Apply cached theme immediately to avoid flash */
+    const cachedTheme = localStorage.getItem('me_theme') || 'gold';
+    const cachedDark  = localStorage.getItem('me_dark') === 'true';
+    applyTheme(cachedTheme, cachedDark);
     await loadFresh();
+    applyBranding();
     buildCatNav();
     renderMenu();
     bindEvents();
@@ -22,18 +26,17 @@ const Menu = (() => {
   async function loadFresh() {
     showLoading(true);
     try {
-      /* Cache-busting timestamp forces GitHub Pages (and any CDN/proxy)
-         to return the newest committed file every single time.            */
       const bust = `?v=${Date.now()}`;
       const res  = await fetch(`data/menu.json${bust}`, {
-        cache: 'no-store',           /* browser: skip disk cache entirely  */
+        cache: 'no-store',
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma':        'no-cache',
         }
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json     = await res.json();
+      const json      = await res.json();
+      data.branding   = json.branding   || {};
       data.categories = json.categories || [];
       data.items      = json.items      || [];
     } catch (err) {
@@ -44,15 +47,67 @@ const Menu = (() => {
     }
   }
 
-  /* ── Dark mode ── */
-  function applyDark(on) {
-    document.documentElement.setAttribute('data-theme', on ? 'dark' : 'light');
+  /* ── Apply branding to all live DOM elements ── */
+  function applyBranding() {
+    const b = data.branding;
+
+    const name    = b.restaurantName || 'Maison Élite';
+    const sub     = b.restaurantSub  || 'Fine Dining';
+    const heroT   = b.heroTitle      || 'Experience <em>True</em><br/>Gastronomy';
+    const heroS   = b.heroSub        || 'Crafted with passion — served with elegance';
+    const logoSrc = b.logoImage      || '';
+
+    /* Apply theme before rendering so colours are correct immediately */
+    const theme  = b.theme    || 'gold';
+    const isDark = b.darkMode != null
+      ? b.darkMode
+      : (localStorage.getItem('me_dark') === 'true');
+    applyTheme(theme, isDark);
+
+    document.title = `${name} – Menu`;
+
+    const brandName = document.querySelector('.brand-name');
+    const brandSub  = document.querySelector('.brand-sub');
+    if (brandName) brandName.textContent = name;
+    if (brandSub)  brandSub.textContent  = sub;
+
+    const brandMark = document.querySelector('.brand-mark');
+    if (brandMark) {
+      if (logoSrc) {
+        brandMark.innerHTML = `<img src="${logoSrc}" alt="${name} logo" class="brand-logo-img"/>`;
+      } else {
+        brandMark.innerHTML = `<i class="fa-solid fa-utensils"></i>`;
+      }
+    }
+
+    const heroTitle = document.querySelector('.hero-title');
+    const heroSubEl = document.querySelector('.hero-sub');
+    if (heroTitle) heroTitle.innerHTML = heroT;
+    if (heroSubEl) heroSubEl.textContent = heroS;
+
+    const footerEl = document.querySelector('.site-footer');
+    if (footerEl) {
+      footerEl.innerHTML =
+        `<strong>${name}</strong> &nbsp;·&nbsp; ${sub} Experience &nbsp;·&nbsp; <span id="yr"></span>`;
+      const yr = document.getElementById('yr');
+      if (yr) yr.textContent = new Date().getFullYear();
+    }
+  }
+
+  /* ── Theme + dark mode ── */
+  function applyTheme(theme, dark) {
+    const html = document.documentElement;
+    html.setAttribute('data-theme', theme || 'gold');
+    html.setAttribute('data-mode',  dark  ? 'dark' : 'light');
     const icon = document.getElementById('dark-icon');
-    if (icon) icon.className = on ? 'fa-solid fa-sun dark-icon' : 'fa-solid fa-moon dark-icon';
-    localStorage.setItem('me_dark', on);
+    if (icon) icon.className = dark ? 'fa-solid fa-sun dark-icon' : 'fa-solid fa-moon dark-icon';
+    localStorage.setItem('me_dark',  dark);
+    localStorage.setItem('me_theme', theme);
   }
   function toggleDark() {
-    applyDark(document.documentElement.getAttribute('data-theme') !== 'dark');
+    const dark = document.documentElement.getAttribute('data-mode') !== 'dark';
+    const theme = document.documentElement.getAttribute('data-theme') || 'gold';
+    applyTheme(theme, dark);
   }
 
   /* ── Loading state ── */

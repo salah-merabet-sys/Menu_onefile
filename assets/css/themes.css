@@ -1,0 +1,453 @@
+/* ============================================================
+   MAISON ÉLITE — THEMES  |  assets/css/themes.css
+   10 themes × 2 modes (light / dark)
+   Applied via: <html data-theme="X" data-mode="light|dark">
+   Base neutral variables (--cream, --ink, etc.) are overridden
+   per theme. Accent colours (--gold, --gold-lt, --gold-dk) drive
+   badges, pills, the hero ornament, price text, and all CTAs.
+============================================================ */
+
+/* ── 1. GOLD (default — classic fine dining) ── */
+[data-theme="gold"][data-mode="light"] {
+  --cream:        #f8f4ee;
+  --cream-mid:    #f0e9dc;
+  --cream-deep:   #e5d9c7;
+  --gold:         #c09a5a;
+  --gold-lt:      #d4b278;
+  --gold-dk:      #8c6e38;
+  --ink:          #1a1814;
+  --ink-soft:     #3a342c;
+  --ink-mid:      #6b6058;
+  --ink-muted:    #9e9488;
+  --white:        #ffffff;
+  --border:       #ddd4c0;
+  --border-lt:    #ece5d8;
+  --sh-sm:        0 2px 8px  rgba(26,24,20,.07);
+  --sh-md:        0 8px 28px rgba(26,24,20,.12);
+  --sh-lg:        0 20px 56px rgba(26,24,20,.18);
+  --hero-bg:      linear-gradient(170deg,#f0e9dc 0%,#f8f4ee 100%);
+  --ff-display:   'Cormorant Garamond', Georgia, serif;
+  --ff-body:      'Jost', system-ui, sans-serif;
+}
+[data-theme="gold"][data-mode="dark"] {
+  --cream:        #161410;
+  --cream-mid:    #1e1c17;
+  --cream-deep:   #252118;
+  --gold:         #c09a5a;
+  --gold-lt:      #d4b278;
+  --gold-dk:      #c09a5a;
+  --ink:          #f0e8d8;
+  --ink-soft:     #d4c8b4;
+  --ink-mid:      #9e9282;
+  --ink-muted:    #6e6458;
+  --white:        #1e1c17;
+  --border:       #2e2a22;
+  --border-lt:    #282420;
+  --sh-sm:        0 2px 8px  rgba(0,0,0,.3);
+  --sh-md:        0 8px 28px rgba(0,0,0,.45);
+  --sh-lg:        0 20px 56px rgba(0,0,0,.6);
+  --hero-bg:      linear-gradient(170deg,#1e1c17 0%,#161410 100%);
+  --ff-display:   'Cormorant Garamond', Georgia, serif;
+  --ff-body:      'Jost', system-ui, sans-serif;
+}
+
+/* ── 2. ROUGE (deep red — French brasserie) ── */
+[data-theme="rouge"][data-mode="light"] {
+  --cream:        #fdf5f5;
+  --cream-mid:    #f7e8e8;
+  --cream-deep:   #edd8d8;
+  --gold:         #c0373a;
+  --gold-lt:      #d45a5d;
+  --gold-dk:      #8c2224;
+  --ink:          #1a0d0d;
+  --ink-soft:     #3a1c1c;
+  --ink-mid:      #6b4444;
+  --ink-muted:    #9e7878;
+  --white:        #ffffff;
+  --border:       #e8cecd;
+  --border-lt:    #f2e2e2;
+  --sh-sm:        0 2px 8px  rgba(26,13,13,.07);
+  --sh-md:        0 8px 28px rgba(26,13,13,.12);
+  --sh-lg:        0 20px 56px rgba(26,13,13,.18);
+  --hero-bg:      linear-gradient(170deg,#f7e8e8 0%,#fdf5f5 100%);
+  --ff-display:   'Cormorant Garamond', Georgia, serif;
+  --ff-body:      'Jost', system-ui, sans-serif;
+}
+[data-theme="rouge"][data-mode="dark"] {
+  --cream:        #160c0c;
+  --cream-mid:    #1e1010;
+  --cream-deep:   #251515;
+  --gold:         #d45a5d;
+  --gold-lt:      #e07c7e;
+  --gold-dk:      #d45a5d;
+  --ink:          #f5e8e8;
+  --ink-soft:     #d4b4b4;
+  --ink-mid:      #9e7878;
+  --ink-muted:    #6e5050;
+  --white:        #1e1010;
+  --border:       #2e1818;
+  --border-lt:    #281414;
+  --sh-sm:        0 2px 8px  rgba(0,0,0,.3);
+  --sh-md:        0 8px 28px rgba(0,0,0,.45);
+  --sh-lg:        0 20px 56px rgba(0,0,0,.6);
+  --hero-bg:      linear-gradient(170deg,#1e1010 0%,#160c0c 100%);
+  --ff-display:   'Cormorant Garamond', Georgia, serif;
+  --ff-body:      'Jost', system-ui, sans-serif;
+}
+
+/* ── 3. FORÊT (forest green — garden bistro) ── */
+[data-theme="foret"][data-mode="light"] {
+  --cream:        #f4f8f2;
+  --cream-mid:    #e6f0e3;
+  --cream-deep:   #d4e5cf;
+  --gold:         #3a7a46;
+  --gold-lt:      #57a163;
+  --gold-dk:      #285933;
+  --ink:          #0d1a10;
+  --ink-soft:     #1c3a22;
+  --ink-mid:      #4a6b50;
+  --ink-muted:    #7a9e80;
+  --white:        #ffffff;
+  --border:       #c8ddc6;
+  --border-lt:    #deeedd;
+  --sh-sm:        0 2px 8px  rgba(13,26,16,.07);
+  --sh-md:        0 8px 28px rgba(13,26,16,.12);
+  --sh-lg:        0 20px 56px rgba(13,26,16,.18);
+  --hero-bg:      linear-gradient(170deg,#e6f0e3 0%,#f4f8f2 100%);
+  --ff-display:   'Cormorant Garamond', Georgia, serif;
+  --ff-body:      'Jost', system-ui, sans-serif;
+}
+[data-theme="foret"][data-mode="dark"] {
+  --cream:        #0a100c;
+  --cream-mid:    #101810;
+  --cream-deep:   #152016;
+  --gold:         #57a163;
+  --gold-lt:      #75ba80;
+  --gold-dk:      #57a163;
+  --ink:          #e8f5ea;
+  --ink-soft:     #b4d4b8;
+  --ink-mid:      #7a9e80;
+  --ink-muted:    #506858;
+  --white:        #101810;
+  --border:       #1a2c1c;
+  --border-lt:    #152016;
+  --sh-sm:        0 2px 8px  rgba(0,0,0,.3);
+  --sh-md:        0 8px 28px rgba(0,0,0,.45);
+  --sh-lg:        0 20px 56px rgba(0,0,0,.6);
+  --hero-bg:      linear-gradient(170deg,#101810 0%,#0a100c 100%);
+  --ff-display:   'Cormorant Garamond', Georgia, serif;
+  --ff-body:      'Jost', system-ui, sans-serif;
+}
+
+/* ── 4. ARDOISE (slate blue — coastal seafood) ── */
+[data-theme="ardoise"][data-mode="light"] {
+  --cream:        #f2f5f8;
+  --cream-mid:    #e3eaf2;
+  --cream-deep:   #cfdae8;
+  --gold:         #3a6494;
+  --gold-lt:      #5a86b8;
+  --gold-dk:      #284a70;
+  --ink:          #0d1520;
+  --ink-soft:     #1c2e42;
+  --ink-mid:      #486080;
+  --ink-muted:    #7898b8;
+  --white:        #ffffff;
+  --border:       #c4d4e8;
+  --border-lt:    #dae6f2;
+  --sh-sm:        0 2px 8px  rgba(13,21,32,.07);
+  --sh-md:        0 8px 28px rgba(13,21,32,.12);
+  --sh-lg:        0 20px 56px rgba(13,21,32,.18);
+  --hero-bg:      linear-gradient(170deg,#e3eaf2 0%,#f2f5f8 100%);
+  --ff-display:   'Cormorant Garamond', Georgia, serif;
+  --ff-body:      'Jost', system-ui, sans-serif;
+}
+[data-theme="ardoise"][data-mode="dark"] {
+  --cream:        #09101a;
+  --cream-mid:    #0e1826;
+  --cream-deep:   #142030;
+  --gold:         #5a86b8;
+  --gold-lt:      #7aa4d0;
+  --gold-dk:      #5a86b8;
+  --ink:          #e8f0f8;
+  --ink-soft:     #b4c8e0;
+  --ink-mid:      #7898b8;
+  --ink-muted:    #507090;
+  --white:        #0e1826;
+  --border:       #182840;
+  --border-lt:    #142030;
+  --sh-sm:        0 2px 8px  rgba(0,0,0,.3);
+  --sh-md:        0 8px 28px rgba(0,0,0,.45);
+  --sh-lg:        0 20px 56px rgba(0,0,0,.6);
+  --hero-bg:      linear-gradient(170deg,#0e1826 0%,#09101a 100%);
+  --ff-display:   'Cormorant Garamond', Georgia, serif;
+  --ff-body:      'Jost', system-ui, sans-serif;
+}
+
+/* ── 5. IVOIRE (ivory minimal — modern café) ── */
+[data-theme="ivoire"][data-mode="light"] {
+  --cream:        #fafaf8;
+  --cream-mid:    #f2f2ee;
+  --cream-deep:   #e8e8e2;
+  --gold:         #2c2c2c;
+  --gold-lt:      #555555;
+  --gold-dk:      #111111;
+  --ink:          #111111;
+  --ink-soft:     #333333;
+  --ink-mid:      #666666;
+  --ink-muted:    #999999;
+  --white:        #ffffff;
+  --border:       #e0e0d8;
+  --border-lt:    #ebebea;
+  --sh-sm:        0 2px 8px  rgba(0,0,0,.05);
+  --sh-md:        0 8px 28px rgba(0,0,0,.09);
+  --sh-lg:        0 20px 56px rgba(0,0,0,.14);
+  --hero-bg:      linear-gradient(170deg,#f2f2ee 0%,#fafaf8 100%);
+  --ff-display:   'Cormorant Garamond', Georgia, serif;
+  --ff-body:      'Jost', system-ui, sans-serif;
+}
+[data-theme="ivoire"][data-mode="dark"] {
+  --cream:        #141414;
+  --cream-mid:    #1c1c1c;
+  --cream-deep:   #242424;
+  --gold:         #d4d4d4;
+  --gold-lt:      #e8e8e8;
+  --gold-dk:      #d4d4d4;
+  --ink:          #f0f0f0;
+  --ink-soft:     #d0d0d0;
+  --ink-mid:      #909090;
+  --ink-muted:    #606060;
+  --white:        #1c1c1c;
+  --border:       #2c2c2c;
+  --border-lt:    #242424;
+  --sh-sm:        0 2px 8px  rgba(0,0,0,.3);
+  --sh-md:        0 8px 28px rgba(0,0,0,.45);
+  --sh-lg:        0 20px 56px rgba(0,0,0,.6);
+  --hero-bg:      linear-gradient(170deg,#1c1c1c 0%,#141414 100%);
+  --ff-display:   'Cormorant Garamond', Georgia, serif;
+  --ff-body:      'Jost', system-ui, sans-serif;
+}
+
+/* ── 6. BRAISE (ember orange — steakhouse) ── */
+[data-theme="braise"][data-mode="light"] {
+  --cream:        #fdf6f0;
+  --cream-mid:    #f8ece0;
+  --cream-deep:   #f0dcc8;
+  --gold:         #c86428;
+  --gold-lt:      #e0864a;
+  --gold-dk:      #9a4818;
+  --ink:          #1a0e06;
+  --ink-soft:     #3a2010;
+  --ink-mid:      #6b4828;
+  --ink-muted:    #9e7858;
+  --white:        #ffffff;
+  --border:       #e8d0b8;
+  --border-lt:    #f2e4d0;
+  --sh-sm:        0 2px 8px  rgba(26,14,6,.07);
+  --sh-md:        0 8px 28px rgba(26,14,6,.12);
+  --sh-lg:        0 20px 56px rgba(26,14,6,.18);
+  --hero-bg:      linear-gradient(170deg,#f8ece0 0%,#fdf6f0 100%);
+  --ff-display:   'Cormorant Garamond', Georgia, serif;
+  --ff-body:      'Jost', system-ui, sans-serif;
+}
+[data-theme="braise"][data-mode="dark"] {
+  --cream:        #160a04;
+  --cream-mid:    #200e06;
+  --cream-deep:   #2a1408;
+  --gold:         #e0864a;
+  --gold-lt:      #f0a470;
+  --gold-dk:      #e0864a;
+  --ink:          #f8ede0;
+  --ink-soft:     #d4b898;
+  --ink-mid:      #9e7858;
+  --ink-muted:    #6e5038;
+  --white:        #200e06;
+  --border:       #301808;
+  --border-lt:    #281206;
+  --sh-sm:        0 2px 8px  rgba(0,0,0,.3);
+  --sh-md:        0 8px 28px rgba(0,0,0,.45);
+  --sh-lg:        0 20px 56px rgba(0,0,0,.6);
+  --hero-bg:      linear-gradient(170deg,#200e06 0%,#160a04 100%);
+  --ff-display:   'Cormorant Garamond', Georgia, serif;
+  --ff-body:      'Jost', system-ui, sans-serif;
+}
+
+/* ── 7. LAVANDE (lavender — patisserie / brunch) ── */
+[data-theme="lavande"][data-mode="light"] {
+  --cream:        #f7f4fc;
+  --cream-mid:    #ede6f8;
+  --cream-deep:   #ded4f0;
+  --gold:         #7048c0;
+  --gold-lt:      #9470d8;
+  --gold-dk:      #50309a;
+  --ink:          #130d20;
+  --ink-soft:     #281a40;
+  --ink-mid:      #5a4878;
+  --ink-muted:    #9080b0;
+  --white:        #ffffff;
+  --border:       #d8caf0;
+  --border-lt:    #ece4f8;
+  --sh-sm:        0 2px 8px  rgba(19,13,32,.07);
+  --sh-md:        0 8px 28px rgba(19,13,32,.12);
+  --sh-lg:        0 20px 56px rgba(19,13,32,.18);
+  --hero-bg:      linear-gradient(170deg,#ede6f8 0%,#f7f4fc 100%);
+  --ff-display:   'Cormorant Garamond', Georgia, serif;
+  --ff-body:      'Jost', system-ui, sans-serif;
+}
+[data-theme="lavande"][data-mode="dark"] {
+  --cream:        #0d0914;
+  --cream-mid:    #140e1e;
+  --cream-deep:   #1a1228;
+  --gold:         #9470d8;
+  --gold-lt:      #b090e8;
+  --gold-dk:      #9470d8;
+  --ink:          #f0eaf8;
+  --ink-soft:     #c8b8e4;
+  --ink-mid:      #9080b0;
+  --ink-muted:    #605878;
+  --white:        #140e1e;
+  --border:       #241a38;
+  --border-lt:    #1a1228;
+  --sh-sm:        0 2px 8px  rgba(0,0,0,.3);
+  --sh-md:        0 8px 28px rgba(0,0,0,.45);
+  --sh-lg:        0 20px 56px rgba(0,0,0,.6);
+  --hero-bg:      linear-gradient(170deg,#140e1e 0%,#0d0914 100%);
+  --ff-display:   'Cormorant Garamond', Georgia, serif;
+  --ff-body:      'Jost', system-ui, sans-serif;
+}
+
+/* ── 8. ROSÉ (blush pink — wine bar) ── */
+[data-theme="rose"][data-mode="light"] {
+  --cream:        #fdf5f7;
+  --cream-mid:    #f8e8ed;
+  --cream-deep:   #f0d4de;
+  --gold:         #b84870;
+  --gold-lt:      #d06890;
+  --gold-dk:      #8a3055;
+  --ink:          #1a0d12;
+  --ink-soft:     #3a1824;
+  --ink-mid:      #6b4055;
+  --ink-muted:    #9e7085;
+  --white:        #ffffff;
+  --border:       #eac8d4;
+  --border-lt:    #f4dde6;
+  --sh-sm:        0 2px 8px  rgba(26,13,18,.07);
+  --sh-md:        0 8px 28px rgba(26,13,18,.12);
+  --sh-lg:        0 20px 56px rgba(26,13,18,.18);
+  --hero-bg:      linear-gradient(170deg,#f8e8ed 0%,#fdf5f7 100%);
+  --ff-display:   'Cormorant Garamond', Georgia, serif;
+  --ff-body:      'Jost', system-ui, sans-serif;
+}
+[data-theme="rose"][data-mode="dark"] {
+  --cream:        #14080d;
+  --cream-mid:    #1e0e14;
+  --cream-deep:   #28121c;
+  --gold:         #d06890;
+  --gold-lt:      #e088aa;
+  --gold-dk:      #d06890;
+  --ink:          #f8eaf0;
+  --ink-soft:     #d4b0c4;
+  --ink-mid:      #9e7085;
+  --ink-muted:    #6e4860;
+  --white:        #1e0e14;
+  --border:       #301020;
+  --border-lt:    #280c18;
+  --sh-sm:        0 2px 8px  rgba(0,0,0,.3);
+  --sh-md:        0 8px 28px rgba(0,0,0,.45);
+  --sh-lg:        0 20px 56px rgba(0,0,0,.6);
+  --hero-bg:      linear-gradient(170deg,#1e0e14 0%,#14080d 100%);
+  --ff-display:   'Cormorant Garamond', Georgia, serif;
+  --ff-body:      'Jost', system-ui, sans-serif;
+}
+
+/* ── 9. MINUIT (midnight — speakeasy / cocktail bar) ── */
+[data-theme="minuit"][data-mode="light"] {
+  --cream:        #f0f0f4;
+  --cream-mid:    #e4e4ec;
+  --cream-deep:   #d4d4e0;
+  --gold:         #4040a0;
+  --gold-lt:      #6060c0;
+  --gold-dk:      #282878;
+  --ink:          #08081a;
+  --ink-soft:     #141430;
+  --ink-mid:      #404068;
+  --ink-muted:    #7070a0;
+  --white:        #ffffff;
+  --border:       #c8c8e0;
+  --border-lt:    #dcdcee;
+  --sh-sm:        0 2px 8px  rgba(8,8,26,.07);
+  --sh-md:        0 8px 28px rgba(8,8,26,.12);
+  --sh-lg:        0 20px 56px rgba(8,8,26,.18);
+  --hero-bg:      linear-gradient(170deg,#e4e4ec 0%,#f0f0f4 100%);
+  --ff-display:   'Cormorant Garamond', Georgia, serif;
+  --ff-body:      'Jost', system-ui, sans-serif;
+}
+[data-theme="minuit"][data-mode="dark"] {
+  --cream:        #06060e;
+  --cream-mid:    #0c0c18;
+  --cream-deep:   #121224;
+  --gold:         #6060c0;
+  --gold-lt:      #8080d8;
+  --gold-dk:      #6060c0;
+  --ink:          #e8e8f8;
+  --ink-soft:     #b8b8d8;
+  --ink-mid:      #7070a0;
+  --ink-muted:    #484870;
+  --white:        #0c0c18;
+  --border:       #181830;
+  --border-lt:    #121224;
+  --sh-sm:        0 2px 8px  rgba(0,0,0,.35);
+  --sh-md:        0 8px 28px rgba(0,0,0,.5);
+  --sh-lg:        0 20px 56px rgba(0,0,0,.7);
+  --hero-bg:      linear-gradient(170deg,#0c0c18 0%,#06060e 100%);
+  --ff-display:   'Cormorant Garamond', Georgia, serif;
+  --ff-body:      'Jost', system-ui, sans-serif;
+}
+
+/* ── 10. TERRA (terracotta — Mediterranean taverna) ── */
+[data-theme="terra"][data-mode="light"] {
+  --cream:        #faf4ef;
+  --cream-mid:    #f4e8de;
+  --cream-deep:   #e8d4c4;
+  --gold:         #a05030;
+  --gold-lt:      #c07050;
+  --gold-dk:      #783820;
+  --ink:          #1a0e08;
+  --ink-soft:     #3a2015;
+  --ink-mid:      #6b4830;
+  --ink-muted:    #9e7860;
+  --white:        #ffffff;
+  --border:       #e0c8b4;
+  --border-lt:    #eedece;
+  --sh-sm:        0 2px 8px  rgba(26,14,8,.07);
+  --sh-md:        0 8px 28px rgba(26,14,8,.12);
+  --sh-lg:        0 20px 56px rgba(26,14,8,.18);
+  --hero-bg:      linear-gradient(170deg,#f4e8de 0%,#faf4ef 100%);
+  --ff-display:   'Cormorant Garamond', Georgia, serif;
+  --ff-body:      'Jost', system-ui, sans-serif;
+}
+[data-theme="terra"][data-mode="dark"] {
+  --cream:        #140a06;
+  --cream-mid:    #1e100a;
+  --cream-deep:   #28160e;
+  --gold:         #c07050;
+  --gold-lt:      #d89070;
+  --gold-dk:      #c07050;
+  --ink:          #f8ede4;
+  --ink-soft:     #d4b8a8;
+  --ink-mid:      #9e7860;
+  --ink-muted:    #6e5040;
+  --white:        #1e100a;
+  --border:       #301808;
+  --border-lt:    #281208;
+  --sh-sm:        0 2px 8px  rgba(0,0,0,.3);
+  --sh-md:        0 8px 28px rgba(0,0,0,.45);
+  --sh-lg:        0 20px 56px rgba(0,0,0,.6);
+  --hero-bg:      linear-gradient(170deg,#1e100a 0%,#140a06 100%);
+  --ff-display:   'Cormorant Garamond', Georgia, serif;
+  --ff-body:      'Jost', system-ui, sans-serif;
+}
+
+/* ── Hero gradient hookup ── */
+.menu-hero {
+  background: var(--hero-bg) !important;
+}

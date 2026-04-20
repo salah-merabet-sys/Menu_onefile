@@ -1,4 +1,14 @@
 {
+  "branding": {
+    "restaurantName": "Maison Élite",
+    "restaurantSub": "Fine Dining",
+    "heroTitle": "Experience <em>True</em><br/>Gastronomy",
+    "heroSub": "Crafted with passion — served with elegance",
+    "logoImage": "",
+    "logoImageFilename": "",
+    "theme": "gold",
+    "darkMode": false
+  },
   "categories": [
     {
       "id": "starters",
@@ -51,7 +61,7 @@
     },
     {
       "id": 1775588557505,
-      "name": "Soupe à l’oignon gratinée",
+      "name": "Soupe à l'oignon gratinée",
       "category": "starters",
       "price": 800,
       "description": "",
@@ -106,7 +116,7 @@
     },
     {
       "id": 1775588864524,
-      "name": "Côtelettes d’agneau grillées (3 pièces)",
+      "name": "Côtelettes d'agneau grillées (3 pièces)",
       "category": "mains",
       "price": 4000,
       "description": "",
